@@ -1,0 +1,8 @@
+google-genai==1.7.0
+chromadb==0.6.3
+google-api-core>=2.0.0
+python-dotenv
+kaggle
+IPython
+uvicorn
+fastapi
