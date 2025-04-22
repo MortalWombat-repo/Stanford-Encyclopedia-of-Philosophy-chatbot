@@ -23,21 +23,25 @@ for m in client.models.list():
     if "embedContent" in m.supported_actions:
         print(m.name)
 
+import zipfile
+import os
+
+zip_path = "output/chroma_db.zip"
+extract_path = "output/chroma"  #ChromaDB folder
+
+# Unzip it
+with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+    zip_ref.extractall(extract_path)
+
 import chromadb
 
+# Load the persistent ChromaDB from the extracted path
+db = chromadb.PersistentClient(path="output/chroma")
 
-
-# Load the persistent ChromaDB
-db = chromadb.PersistentClient(path="output")
-
-# List collections to check what’s inside
+# Optionally list collections
 print(db.list_collections())
 
-# Get your collection (replace 'my_collection' with your actual name)
-collection = db.get_collection(name="my_collection")
-
-# Count how many embeddings are stored
+# Load a collection and interact with it
+collection = db.get_collection(name="your_collection_name")
 print(collection.count())
-
-# Peek at the first item
 print(collection.peek(1))
