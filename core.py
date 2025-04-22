@@ -8,6 +8,7 @@ import os
 # Uninstall conflicting packages quietly and without confirmation
 subprocess.run(["pip", "uninstall", "-qqy", "jupyterlab", "kfp"], check=True)
 
+"""
 # Load variables from .env file
 load_dotenv()
 
@@ -22,6 +23,8 @@ client = genai.Client(api_key=GOOGLE_API_KEY)
 for m in client.models.list():
     if "embedContent" in m.supported_actions:
         print(m.name)
+"""
+
 
 import zipfile
 import os
