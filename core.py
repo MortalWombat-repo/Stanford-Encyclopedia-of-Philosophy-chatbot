@@ -1,3 +1,6 @@
+import pysqlite3  # noqa: F401
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import pickle
 import time
 import requests
@@ -12,9 +15,6 @@ import chromadb
 from chromadb import Documents, EmbeddingFunction, Embeddings
 from google.api_core import retry
 import re
-import pysqlite3  # noqa: F401
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 def import_google_api():
     #importing Google api key
