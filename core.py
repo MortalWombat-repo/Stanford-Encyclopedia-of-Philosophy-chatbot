@@ -113,6 +113,8 @@ def unzipping_the_dataset():
         print("Zip file removed. Done!")
 
 def persistent_client(embed_fn):
+    unzipping_the_dataset()
+    
     # Initialize PersistentClient with desired path
     persist_dir = "./output"  # Use one directory for persistence
     chroma_client = chromadb.PersistentClient(path=persist_dir)
@@ -277,7 +279,6 @@ def main():
     gemini_embedding_function = embedding_function(client)
     #pickled_dictionary, concatenated_list = unpickle()
     #create_collection(gemini_embedding_function, client, concatenated_list)
-    unzipping_the_dataset()
     embed_fn, collection = persistent_client(gemini_embedding_function)
     get_article(user_query, embed_fn, collection, client)
     summarize_article(user_query, embed_fn, collection, client)
