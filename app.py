@@ -80,6 +80,8 @@ stats = estimate_reading_stats(text, 'high_school')
 print(stats)
 
 def main():
+    unzipping_the_dataset()
+    
     #Title page
     # Create two columns: one small for the icon, one large for the title
     col1, col2 = st.columns([1, 18])
