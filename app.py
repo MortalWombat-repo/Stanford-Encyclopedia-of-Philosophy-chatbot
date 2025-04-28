@@ -92,7 +92,7 @@ def main():
     with col2:
         st.title("Stanford Encyclopedia of Philosophy chatbot")  # 👈 title next to logo
 
-    st.markdown("Search for encyclopedia articles, analyze or visualize your own research paper, or generate a professional summary.")
+    st.markdown("Search for encyclopedia articles, analyze and visualize it, or generate a professional summary.")
 
     # Sidebar for settings
     with st.sidebar:
