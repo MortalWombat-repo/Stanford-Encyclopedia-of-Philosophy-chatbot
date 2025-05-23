@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from wordcloud import WordCloud, STOPWORDS
 import textstat
 import matplotlib.pyplot as plt
+
 from core import (
     import_google_api,
     embedding_function,
@@ -14,12 +15,91 @@ from core import (
     unzipping_the_dataset,
     persistent_client,
     get_article,
+    get_article_hr,
     summarize_article,
     get_full_article
 )
 
 # Streamlit App Configuration - This must be first
 st.set_page_config(page_title="Stanford Encyclopedia of Philosophy chatbot", page_icon="🏛️", layout="wide")
+
+#import fasttext
+# Load only once
+#@st.cache_resource
+#def load_fasttext_model():
+#   return fasttext.load_model("models/lid.176.bin")
+#ft_lang_model = load_fasttext_model()
+
+from lingua import Language, LanguageDetectorBuilder
+@st.cache_resource
+def load_language_detector():
+    detector = LanguageDetectorBuilder.from_languages(
+    Language.CROATIAN,
+    Language.ENGLISH,
+    Language.GERMAN,
+    Language.SPANISH,
+    Language.FRENCH
+    ).build()
+    return detector
+
+def detect_language_lingua(text):
+    detector = load_language_detector()
+    lang = detector.detect_language_of(text)
+    return lang.name if lang else "Unknown"
+
+import nltk
+from nltk.corpus import stopwords
+
+nltk.download('stopwords')
+
+# Cache the stop words
+@st.cache_resource
+def load_stopwords():
+    english_stopwords = set(stopwords.words('english'))
+    croatian_stopwords = "croatian_stopwords.txt"
+    croatian_stopwords = set()
+    french_stopwords = set(stopwords.words('french'))
+    german_stopwords = set(stopwords.words('german'))
+    spanish_stopwords = set(stopwords.words('spanish'))
+
+    combined_stopwords = (
+        english_stopwords
+        .union(croatian_stopwords)
+        .union(french_stopwords)
+        .union(german_stopwords)
+        .union(spanish_stopwords)
+    )
+
+    combined_stopwords.update([
+        "said", "also", "one", "would", "could", "us", "get", "like"
+    ])
+    print('croatian' in stopwords.fileids())
+
+    return combined_stopwords
+
+# Load the stop words
+combined_stopwords = load_stopwords()
+
+# Example: Display stop words in Streamlit
+#st.write(f"Total stop words: {len(combined_stopwords)}")
+#st.write(f"Sample stop words: {list(combined_stopwords)[:20]}")
+
+#from lingua import Language, LanguageDetectorBuilder
+#@st.cache_resource
+#def load_language_detector():
+    #return LanguageDetectorBuilder.from_all_languages().build()
+
+# Function to detect language
+#def detect_language_lingua(text):
+    #detector = load_language_detector()
+    #lang = detector.detect_language_of(text)
+    #return lang.name if lang else "Unknown"
+    #print(lang.name)
+
+#user_query = "Objasni logiku u Abelarda"
+#user_language = detect_language_lingua(user_query)
+#st.write(f"Text: {user_query}")
+#st.write(f"Detected Language: {user_language}")
 
 # -----------------------------------
 # Importing Google API key, embedding function, collection, and retry
@@ -31,6 +111,11 @@ embed_fn, collection = persistent_client(gemini_embedding_function)
 # -----------------------------------
 # Streamlit UI
 # -----------------------------------
+
+def detect_language_fasttext(text):
+    prediction = ft_lang_model.predict(text.replace('\n', ' ').strip())
+    lang_code = prediction[0][0].replace('__label__', '')
+    return lang_code
 
 def estimate_reading_stats(text, education_level='college'):
     word_count = len(text.split())
@@ -75,13 +160,13 @@ def estimate_reading_stats(text, education_level='college'):
     }
 
 # Example usage
-text = "This is a sample passage to evaluate how long it might take someone to read it based on their educational background."
-stats = estimate_reading_stats(text, 'high_school')
-print(stats)
+#text = "This is a sample passage to evaluate how long it might take someone to read it based on their educational background."
+#stats = estimate_reading_stats(text, 'high_school')
+#print(stats)
 
 def main():
     unzipping_the_dataset()
-    
+
     #Title page
     # Create two columns: one small for the icon, one large for the title
     col1, col2 = st.columns([1, 18])
@@ -112,13 +197,22 @@ def main():
 
     with explain_tab:
         with st.form(key="query_form"):
-            user_query = st.text_input("💬 Query the encyclopedia:", placeholder="e.g., Explain Abelard's logic.")
+            user_query = st.text_input("💬 Query the encyclopedia:", placeholder="e.g., Explain Abelard's logic. Multiple languages supported.")
             submit_button = st.form_submit_button("🔎 Search the encyclopedia")
 
         if submit_button and user_query:
             with st.spinner("Searching for the article..."):
-                article = get_article(user_query, embed_fn, collection, client)
+                user_language = detect_language_lingua(user_query)
+                if user_language == "ENGLISH":
+                    article = get_article(user_query, embed_fn, collection, client, user_language)
+                elif user_language == "CROATIAN":
+                    article = get_article_hr(user_query, embed_fn, collection, client, user_language)
+                else:
+                    article = get_article(user_query, embed_fn, collection, client, user_language)
                 sep_full_article = get_full_article(user_query, embed_fn, collection, client)
+
+            st.write(f"Detected language: {user_language}")
+            #st.write("Članak (hr):", article)
 
             # Save into session_state
             st.session_state['article'] = article
@@ -174,9 +268,9 @@ def main():
 
         # Only show the word cloud if there is valid text (cleaned_text or cleaned_text_full)
         if cleaned_text and cleaned_text_full:
-            # ----- Word Cloud -----        
+            # ----- Word Cloud -----
             st.subheader("☁️ Word Cloud")
-            custom_stopwords = set(STOPWORDS)
+            custom_stopwords = combined_stopwords
             custom_stopwords.update([
                 "said", "also", "one", "would", "could", "us", "get", "like"
             ])
@@ -222,7 +316,15 @@ def main():
             # Generate new summary if none exists
             if 'summed_article' not in st.session_state:
                 with st.spinner("Generating summary for the article..."):
-                    summed_article = summarize_article(user_query, embed_fn, collection, client)
+                    user_language = detect_language_lingua(user_query)
+                    if user_language == "ENGLISH":
+                        article = get_article(user_query, embed_fn, collection, client, user_language)
+                    elif user_language == "CROATIAN":
+                        article = get_article_hr(user_query, embed_fn, collection, client, user_language)
+                    else:
+                        article = get_article(user_query, embed_fn, collection, client, user_language)
+                    sep_full_article = get_full_article(user_query, embed_fn, collection, client)
+                    summed_article = summarize_article(user_query, embed_fn, collection, client, user_language)
                     st.session_state['summed_article'] = summed_article
                     # Store current inputs for future comparison
                     st.session_state['prev_article'] = article
