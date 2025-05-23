@@ -12,3 +12,8 @@ kaggle
 IPython
 uvicorn
 fastapi
+pycountry
+langcodes
+fasttext
+lingua
+nltk
