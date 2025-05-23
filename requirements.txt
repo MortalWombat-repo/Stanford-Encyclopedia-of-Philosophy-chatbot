@@ -15,5 +15,5 @@ fastapi
 pycountry
 langcodes
 fasttext
-lingua
+lingua-language-detector
 nltk
