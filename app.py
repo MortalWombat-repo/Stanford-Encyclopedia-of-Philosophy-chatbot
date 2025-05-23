@@ -197,7 +197,7 @@ def main():
 
     with explain_tab:
         with st.form(key="query_form"):
-            user_query = st.text_input("💬 Query the encyclopedia:", placeholder="e.g., Explain Abelard's logic. Multiple languages supported.")
+            user_query = st.text_input("💬 Query the encyclopedia:", placeholder="e.g., Explain Abelard's logic. Multiple languages supported. If query not in english use at least 4 words.")
             submit_button = st.form_submit_button("🔎 Search the encyclopedia")
 
         if submit_button and user_query:
