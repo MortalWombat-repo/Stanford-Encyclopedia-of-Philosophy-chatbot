@@ -6,4 +6,4 @@ By the request of Stanford I was politely asked to remove the demo. I was also a
 Worry not Stanford has been more than supportive and allowed me to keep this repository active.  
 I will publish a guide on how it can be built on your local machine.  
 Please do not deploy it on Streamlit or any other service with a visible URL, as Stanford has been explicit in their request.  
-This is for personal use only.
+**This is for personal use only.**
