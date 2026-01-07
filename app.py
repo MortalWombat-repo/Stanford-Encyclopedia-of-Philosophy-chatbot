@@ -129,15 +129,16 @@ def estimate_reading_stats(text, education_level='college'):
         'expert': 450
     }
 
-    # Get words per minute for the given education level
     wpm = speeds.get(education_level.lower(), 275)
     minutes = round(word_count / wpm, 2)
 
-    # Estimate difficulty using Flesch Reading Ease (0–100)
-    # Higher = easier
-    difficulty_score = textstat.flesch_reading_ease(text)
+    # --- WRAP THIS IN TRY-EXCEPT TO PREVENT KEYERROR ---
+    try:
+        difficulty_score = textstat.flesch_reading_ease(text)
+    except (KeyError, Exception):
+        # Fallback if a URL or non-English word causes a crash
+        difficulty_score = 60.0 
 
-    # Interpret the score
     if difficulty_score >= 90:
         difficulty = "Very Easy (5th grade)"
     elif difficulty_score >= 80:
@@ -158,7 +159,6 @@ def estimate_reading_stats(text, education_level='college'):
         'estimated_minutes': minutes,
         'difficulty': difficulty
     }
-
 # Example usage
 #text = "This is a sample passage to evaluate how long it might take someone to read it based on their educational background."
 #stats = estimate_reading_stats(text, 'high_school')
