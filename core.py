@@ -212,7 +212,7 @@ def get_article(user_query, embed_fn, collection, client, user_language):
         prompt += f"PASSAGE: {passage_oneline}\n"
 
     answer = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=prompt)
 
     #return Markdown(answer.text)
@@ -279,7 +279,7 @@ def get_article_hr(user_query, embed_fn, collection, client, user_language):
         prompt += f"PASSAGE: {passage_oneline}\n"
 
     answer = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=prompt)
 
     #return Markdown(answer.text)
@@ -331,7 +331,7 @@ def summarize_article(user_query, embed_fn, collection, client, user_language):
         prompt += f"PASSAGE: {passage_oneline}\n"
 
     answer = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=prompt)
 
     #return Markdown(answer.text)
@@ -380,7 +380,7 @@ def summarize_article_hr(user_query, embed_fn, collection, client, user_language
         prompt += f"PASSAGE: {passage_oneline}\n"
 
     answer = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=prompt)
 
     #return Markdown(answer.text)
